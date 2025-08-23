@@ -7,6 +7,7 @@ import Spinner from 'react-spinners/PuffLoader';
 import Modal from 'react-modal';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { getApiUrl } from '../config';
 
 Modal.setAppElement('#root');
 
@@ -28,7 +29,7 @@ const FormBuilder = () => {
       setIsNewForm(false);
       const fetchForm = async () => {
         try {
-          const res = await axios.get(`http://localhost:5000/api/forms/${formId}`, {
+          const res = await axios.get(getApiUrl(`/api/forms/${formId}`), {
             headers: { Authorization: `Bearer ${token}` },
           });
           setForm(res.data);
@@ -126,12 +127,12 @@ const FormBuilder = () => {
     try {
       let res;
       if (isNewForm) {
-        res = await axios.post('http://localhost:5000/api/forms/create', form, {
+        res = await axios.post(getApiUrl('/api/forms/create'), form, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success('Form created successfully!');
       } else {
-        res = await axios.put(`http://localhost:5000/api/forms/${formId}`, form, {
+        res = await axios.put(getApiUrl(`/api/forms/${formId}`), form, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success('Form updated successfully!');
@@ -152,7 +153,7 @@ const FormBuilder = () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        'http://localhost:5000/api/ai/improve-question',
+        getApiUrl('/api/ai/improve-question'),
         { label: form.questions[index].label },
         { headers: { Authorization: `Bearer ${token}` } }
       );

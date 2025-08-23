@@ -5,6 +5,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import toast from 'react-hot-toast';
 import Spinner from 'react-spinners/PuffLoader';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
+import { getApiUrl, getFrontendUrl } from '../config';
 
 const Dashboard = () => {
   const [forms, setForms] = useState([]);
@@ -22,7 +23,7 @@ const Dashboard = () => {
     const fetchForms = async () => {
       setLoading(true);
       try {
-        const res = await axios.get('http://localhost:5000/api/forms/myforms', {
+        const res = await axios.get(getApiUrl('/api/forms/myforms'), {
           headers: { Authorization: `Bearer ${token}` },
         });
         setForms(res.data);
@@ -53,7 +54,7 @@ const Dashboard = () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        'http://localhost:5000/api/ai/generate-form',
+        getApiUrl('/api/ai/generate-form'),
         { prompt },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -193,7 +194,7 @@ const Dashboard = () => {
                     <div className="border-t border-gray-100 pt-4">
                       <div className="text-center">
                         <QRCodeCanvas 
-                          value={`http://localhost:3000/form/${form._id}`} 
+                          value={getFrontendUrl(`/form/${form._id}`)} 
                           size={80} 
                           className="mx-auto mb-2" 
                         />

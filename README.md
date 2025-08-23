@@ -98,23 +98,50 @@ npm run server
 npm run client
 ```
 
+## 🌐 Deployment Configuration
+
+The application uses environment variables for flexible URL configuration:
+
+- **Local Development**: Uses `http://localhost:5000` (backend) and `http://localhost:3000` (frontend)
+- **Production**: Uses `https://formai-u50u.onrender.com` (backend) and `https://form-ai-gamma.vercel.app` (frontend)
+
+### Configuration Details
+- All API calls use the `getApiUrl()` function from `src/config.js`
+- Frontend URLs for sharing use the `getFrontendUrl()` function
+- URLs are configured through environment variables with localhost fallbacks
+- Easy switching between environments by updating environment files
+
+### Environment Setup
+1. Copy `backend/env.example` to `backend/.env` and update values
+2. Copy `frontend/src/env.example` to `frontend/.env.local` and update values
+3. See `frontend/README_CONFIG.md` for detailed configuration documentation
+
 ## 🔧 Configuration
+
+### Environment Variables
+1. Copy `backend/env.example` to `backend/.env`
+2. Copy `frontend/src/env.example` to `frontend/.env.local`
+3. Update the values in both files according to your environment
 
 ### MongoDB Setup
 1. Create a MongoDB Atlas account or use local MongoDB
 2. Create a new database named `formai`
-3. Update the `MONGODB_URI` in your `.env` file
+3. Update the `MONGODB_URI` in your `backend/.env` file
 
 ### Google Gemini API
 1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
 2. Create a new API key
-3. Add it to your `.env` file as `GEMINI_API_KEY`
+3. Add it to your `backend/.env` file as `GEMINI_API_KEY`
 
 ### JWT Secret
 Generate a strong, random string for your JWT secret:
 ```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
+
+### URL Configuration
+- **Backend**: Update `BACKEND_URL_LOCAL` and `BACKEND_URL_PRODUCTION` in `backend/.env`
+- **Frontend**: Update `REACT_APP_API_URL` and `REACT_APP_FRONTEND_URL` in `frontend/.env.local`
 
 ## 📱 Usage
 

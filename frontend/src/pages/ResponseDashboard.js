@@ -14,6 +14,7 @@ import {
 import toast from 'react-hot-toast';
 import Spinner from 'react-spinners/PuffLoader';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
+import { getApiUrl } from '../config';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -30,16 +31,16 @@ const ResponseDashboard = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const formRes = await axios.get(`http://localhost:5000/api/forms/${formId}`, {
+        const formRes = await axios.get(getApiUrl(`/api/forms/${formId}`), {
           headers: { Authorization: `Bearer ${token}` },
         });
         setForm(formRes.data);
-        const resRes = await axios.get(`http://localhost:5000/api/forms/responses/${formId}`, {
+        const resRes = await axios.get(getApiUrl(`/api/forms/responses/${formId}`), {
           headers: { Authorization: `Bearer ${token}` },
         });
         setResponses(resRes.data);
         const insightRes = await axios.post(
-          `http://localhost:5000/api/ai/insights/${formId}`,
+          getApiUrl(`/api/ai/insights/${formId}`),
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -55,7 +56,7 @@ const ResponseDashboard = () => {
 
   const handleExport = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/forms/export/${formId}`, {
+      const res = await axios.get(getApiUrl(`/api/forms/export/${formId}`), {
         headers: { Authorization: `Bearer ${token}` },
       });
       const blob = new Blob([res.data], { type: 'text/csv' });
