@@ -13,7 +13,18 @@ const settingsRoutes = require('./routes/settings');
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// CORS configuration with environment variables
+const corsOptions = {
+  origin: [
+    process.env.FRONTEND_URL_LOCAL || 'http://localhost:3000',
+    process.env.FRONTEND_URL_PRODUCTION || 'https://form-ai-gamma.vercel.app'
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URI)

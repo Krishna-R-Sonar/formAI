@@ -62,7 +62,7 @@ cd frontend
 cp src/env.example .env.local
 ```
 
-### 2. Update Environment Variables
+### 2. Update Frontend Environment Variables
 Edit `.env.local` with your URLs:
 ```env
 # For local development
@@ -75,7 +75,19 @@ REACT_APP_FRONTEND_URL=http://localhost:3000
 ```
 
 ### 3. Backend Environment
-Update your backend `.env` file with the URL configurations from `backend/env.example`.
+Copy `backend/env.example` to `backend/.env` and update values:
+```env
+# Frontend URLs for different environments
+FRONTEND_URL_LOCAL=http://localhost:3000
+FRONTEND_URL_PRODUCTION=https://form-ai-gamma.vercel.app
+
+# Backend URLs for different environments  
+BACKEND_URL_LOCAL=http://localhost:5000
+BACKEND_URL_PRODUCTION=https://formai-u50u.onrender.com
+```
+
+### 4. Restart Servers
+After updating environment files, restart both frontend and backend servers for changes to take effect.
 
 ## Available Functions
 
@@ -107,3 +119,31 @@ These are the default fallback URLs used when environment variables are not set.
 4. **Environment Agnostic**: Works seamlessly in both development and production
 5. **Shareable Links**: Generated links automatically use the correct domain
 6. **Secure Configuration**: URLs can be managed securely through environment variables
+
+## Testing Environment Variables
+
+### Frontend Testing
+Open your browser console and run:
+```javascript
+// Import the test function
+import { testEnvironmentVariables } from './src/env-test';
+
+// Run the test
+testEnvironmentVariables();
+```
+
+### Backend Testing
+Check your backend console logs to see if CORS is properly configured with the environment variables.
+
+## Troubleshooting
+
+### Environment Variables Not Loading
+1. **Frontend**: Ensure `.env.local` is in the frontend root directory (not in src/)
+2. **Backend**: Ensure `.env` is in the backend root directory
+3. **Restart**: Restart both servers after making changes
+4. **Naming**: Frontend variables must start with `REACT_APP_`
+
+### CORS Issues
+1. Check that `FRONTEND_URL_LOCAL` and `FRONTEND_URL_PRODUCTION` are set in backend `.env`
+2. Verify the URLs match exactly (including protocol and port)
+3. Restart the backend server after changes
