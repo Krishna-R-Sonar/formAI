@@ -1,3 +1,4 @@
+// File: formAI/backend/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -17,8 +18,8 @@ const app = express();
 // CORS configuration with environment variables
 const corsOptions = {
   origin: [
-    process.env.FRONTEND_URL_LOCAL || 'http://localhost:3000',
-    process.env.FRONTEND_URL_PRODUCTION || 'https://form-ai-gamma.vercel.app'
+    process.env.FRONTEND_URL_LOCAL,
+    process.env.FRONTEND_URL_PRODUCTION
   ],
   credentials: true,
   optionsSuccessStatus: 200

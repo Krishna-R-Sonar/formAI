@@ -1,3 +1,4 @@
+REM File: formAI/move-env.bat
 @echo off
 echo ========================================
 echo Moving .env file to correct location

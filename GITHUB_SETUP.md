@@ -1,3 +1,4 @@
+<!-- File: formAI/GITHUB_SETUP.md -->
 # GitHub Setup Guide for FormAI
 
 ## 🚀 Initial Setup

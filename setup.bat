@@ -1,3 +1,4 @@
+REM File: formAI/setup.bat
 @echo off
 echo ========================================
 echo FormAI Project Setup

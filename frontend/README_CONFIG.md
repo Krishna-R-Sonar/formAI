@@ -1,3 +1,4 @@
+<!-- File: formAI/frontend/README_CONFIG.md -->
 # Configuration Setup
 
 This project now supports both local development and production deployment using environment variables for flexible configuration.

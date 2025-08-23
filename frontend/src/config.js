@@ -1,3 +1,4 @@
+// File: formAI/frontend/src/config.js
 // Configuration for API and Frontend URLs
 // Uses environment variables for flexible configuration
 
