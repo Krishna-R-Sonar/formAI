@@ -118,7 +118,7 @@ const FormBuilder = () => {
     }
     
     // Check for duplicate titles in existing forms
-    if (isNewForm && form.title.trim().LowerCase() === 'create event feedback form') {
+    if (isNewForm && form.title.trim().toLowerCase() === 'create event feedback form') {
       toast.error('Please use a more specific and unique title for your form');
       return;
     }
