@@ -4,7 +4,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Spinner from 'react-spinners/PuffLoader';
-import { getApiUrl } from '../config';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -16,7 +15,7 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post(getApiUrl('/api/auth/register'), { email, password });
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, { email, password });
       toast.success('Registered successfully! Please login.');
       navigate('/login');
     } catch (err) {

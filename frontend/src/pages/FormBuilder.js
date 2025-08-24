@@ -8,7 +8,6 @@ import Spinner from 'react-spinners/PuffLoader';
 import Modal from 'react-modal';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { getApiUrl } from '../config';
 
 Modal.setAppElement('#root');
 
@@ -30,7 +29,7 @@ const FormBuilder = () => {
       setIsNewForm(false);
       const fetchForm = async () => {
         try {
-          const res = await axios.get(getApiUrl(`/api/forms/${formId}`), {
+          const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/forms/${formId}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setForm(res.data);
@@ -119,7 +118,7 @@ const FormBuilder = () => {
     }
     
     // Check for duplicate titles in existing forms
-    if (isNewForm && form.title.trim().toLowerCase() === 'create event feedback form') {
+    if (isNewForm && form.title.trim().LowerCase() === 'create event feedback form') {
       toast.error('Please use a more specific and unique title for your form');
       return;
     }
@@ -128,12 +127,12 @@ const FormBuilder = () => {
     try {
       let res;
       if (isNewForm) {
-        res = await axios.post(getApiUrl('/api/forms/create'), form, {
+        res = await axios.post(`${process.env.REACT_APP_API_URL}/api/forms/create`, form, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success('Form created successfully!');
       } else {
-        res = await axios.put(getApiUrl(`/api/forms/${formId}`), form, {
+        res = await axios.put(`${process.env.REACT_APP_API_URL}/api/forms/${formId}`, form, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success('Form updated successfully!');
@@ -154,7 +153,7 @@ const FormBuilder = () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        getApiUrl('/api/ai/improve-question'),
+        `${process.env.REACT_APP_API_URL}/api/ai/improve-question`,
         { label: form.questions[index].label },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -228,193 +227,151 @@ const FormBuilder = () => {
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-lg"
-            placeholder="Enter a descriptive title for your form..."
-            aria-label="Form Title"
+            placeholder="Enter form title"
           />
-          {isNewForm && (
-            <p className="mt-2 text-xs text-gray-500">
-              💡 Tip: Use specific, descriptive titles like "Restaurant Customer Feedback" instead of generic ones
-            </p>
-          )}
         </div>
 
-        {/* Theme & Settings */}
+        {/* Questions List */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">🎨 Theme & Settings</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Questions</h2>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="questions">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-6">
+                  {form.questions.map((q, index) => (
+                    <Draggable key={index} draggableId={String(index)} index={index}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="bg-gray-50 p-6 rounded-xl border border-gray-200 hover:border-blue-500 transition-all"
+                        >
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-medium text-gray-900">Question {index + 1}: {q.type}</h3>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleImproveQuestion(index)}
+                                className="text-purple-600 hover:text-purple-700"
+                                aria-label="Improve Question with AI"
+                                data-tip="Improve with AI"
+                              >
+                                ✨
+                              </button>
+                              <button
+                                onClick={() => openDeleteModal(index)}
+                                className="text-red-600 hover:text-red-700"
+                                aria-label="Delete Question"
+                                data-tip="Delete"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </div>
+                          <input
+                            value={q.label}
+                            onChange={(e) => handleUpdateQuestion(index, 'label', e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all mb-4"
+                            placeholder="Question label"
+                          />
+                          {['mcq', 'checkbox', 'dropdown'].includes(q.type) && (
+                            <div className="space-y-2">
+                              {q.options.map((opt, oIndex) => (
+                                <div key={oIndex} className="flex items-center gap-2">
+                                  <input
+                                    value={opt}
+                                    onChange={(e) => handleUpdateOption(index, oIndex, e.target.value)}
+                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder={`Option ${oIndex + 1}`}
+                                  />
+                                  <button
+                                    onClick={() => handleRemoveOption(index, oIndex)}
+                                    className="text-red-500 hover:text-red-600"
+                                  >
+                                    ❌
+                                  </button>
+                                </div>
+                              ))}
+                              <button
+                                onClick={() => handleAddOption(index)}
+                                className="text-blue-600 hover:text-blue-700 font-medium"
+                              >
+                                + Add Option
+                              </button>
+                            </div>
+                          )}
+                          <label className="flex items-center gap-2 mt-4">
+                            <input
+                              type="checkbox"
+                              checked={q.required}
+                              onChange={(e) => handleUpdateQuestion(index, 'required', e.target.checked)}
+                              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            />
+                            Required
+                          </label>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {['text', 'mcq', 'checkbox', 'dropdown', 'file', 'rating'].map((type) => (
+              <button
+                key={type}
+                onClick={() => handleAddQuestion(type)}
+                className="bg-blue-100 text-blue-700 px-4 py-3 rounded-xl font-medium hover:bg-blue-200 transition-colors"
+              >
+                + {type.charAt(0).toUpperCase() + type.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Theme Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Theme</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Primary Color</label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={form.theme.primaryColor}
-                  onChange={(e) => setForm({ ...form, theme: { ...form.theme, primaryColor: e.target.value } })}
-                  className="w-12 h-12 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-gray-300 transition-colors"
-                  aria-label="Primary Color Picker"
-                />
-                <span className="text-sm text-gray-500">{form.theme.primaryColor}</span>
-              </div>
+              <input
+                type="color"
+                value={form.theme.primaryColor}
+                onChange={(e) => setForm({ ...form, theme: { ...form.theme, primaryColor: e.target.value } })}
+                className="w-full h-10 rounded-md cursor-pointer"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Logo URL</label>
               <input
                 value={form.theme.logoUrl}
                 onChange={(e) => setForm({ ...form, theme: { ...form.theme, logoUrl: e.target.value } })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="https://example.com/logo.png"
-                aria-label="Logo URL"
               />
             </div>
-            <div className="flex items-center">
-              <label className="flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={form.isPublic} 
-                  onChange={(e) => setForm({ ...form, isPublic: e.target.checked })} 
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  aria-label="Make Form Public" 
-                />
-                <span className="ml-2 text-sm font-medium text-gray-700">Make form public</span>
-              </label>
-            </div>
           </div>
+          <label className="flex items-center gap-2 mt-6">
+            <input
+              type="checkbox"
+              checked={form.isPublic}
+              onChange={(e) => setForm({ ...form, isPublic: e.target.checked })}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            Make form public
+          </label>
         </div>
 
-        {/* Add Question Types */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">➕ Add Questions</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {[
-              { type: 'text', icon: '📝', label: 'Text' },
-              { type: 'mcq', icon: '🔘', label: 'Multiple Choice' },
-              { type: 'checkbox', icon: '☑️', label: 'Checkbox' },
-              { type: 'dropdown', icon: '📋', label: 'Dropdown' },
-              { type: 'file', icon: '📁', label: 'File Upload' },
-              { type: 'rating', icon: '⭐', label: 'Rating' }
-            ].map(({ type, icon, label }) => (
-              <button 
-                key={type} 
-                onClick={() => handleAddQuestion(type)} 
-                className="flex flex-col items-center p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 group"
-              >
-                <span className="text-2xl mb-2">{icon}</span>
-                <span className="text-sm font-medium text-gray-700 group-hover:text-blue-700">{label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="questions">
-          {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
-              {form.questions.map((q, index) => (
-                <Draggable key={index} draggableId={String(index)} index={index}>
-                  {(provided) => (
-                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="bg-white rounded-2xl shadow-lg border border-gray-100 mb-4 overflow-hidden hover:shadow-xl transition-all duration-300">
-                      <div className="p-6">
-                        {/* Question Header */}
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1 mr-4">
-                            <div className="flex items-center gap-3 mb-3">
-                              <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                {q.type.toUpperCase()}
-                              </span>
-                              <span className="text-sm text-gray-500">Question {index + 1}</span>
-                            </div>
-                            <input 
-                              value={q.label} 
-                              onChange={(e) => handleUpdateQuestion(index, 'label', e.target.value)} 
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-lg font-medium" 
-                              placeholder="Enter your question here..." 
-                              aria-label={`Question Label ${index + 1}`} 
-                            />
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button 
-                              onClick={() => handleImproveQuestion(index)} 
-                              className="p-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors" 
-                              data-tip="Improve question with AI for clarity and engagement" 
-                              aria-label="Improve Question with AI"
-                            >
-                              ✨
-                            </button>
-                            <button 
-                              onClick={() => openDeleteModal(index)} 
-                              className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors" 
-                              aria-label="Delete Question"
-                            >
-                              🗑️
-                            </button>
-                            <div className="w-6 h-6 text-gray-400 cursor-move">⋮⋮</div>
-                          </div>
-                        </div>
-
-                        {/* Question Options */}
-                        {['mcq', 'checkbox', 'dropdown'].includes(q.type) && (
-                          <div className="mb-4">
-                            <h4 className="text-sm font-semibold text-gray-700 mb-3">Options</h4>
-                            <div className="space-y-2">
-                              {q.options.map((opt, oIndex) => (
-                                <div key={oIndex} className="flex items-center gap-2">
-                                  <input 
-                                    value={opt} 
-                                    onChange={(e) => handleUpdateOption(index, oIndex, e.target.value)} 
-                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                    placeholder={`Option ${oIndex + 1}`} 
-                                    aria-label={`Option ${oIndex + 1} for Question ${index + 1}`} 
-                                  />
-                                  <button 
-                                    onClick={() => handleRemoveOption(index, oIndex)} 
-                                    className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors" 
-                                    aria-label="Remove Option"
-                                  >
-                                    ✕
-                                  </button>
-                                </div>
-                              ))}
-                              <button 
-                                onClick={() => handleAddOption(index)} 
-                                className="w-full px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-all duration-200 text-sm font-medium" 
-                                aria-label="Add Option"
-                              >
-                                + Add Option
-                              </button>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Question Settings */}
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                          <label className="flex items-center cursor-pointer">
-                            <input 
-                              type="checkbox" 
-                              checked={q.required} 
-                              onChange={(e) => handleUpdateQuestion(index, 'required', e.target.checked)} 
-                              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" 
-                              aria-label="Mark as Required" 
-                            />
-                            <span className="ml-2 text-sm font-medium text-gray-700">Required question</span>
-                          </label>
-                          <div className="text-xs text-gray-400">Drag to reorder</div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
-      
         {/* Save Button */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+        <div className="flex justify-end">
           <button 
-            onClick={handleSave} 
-            disabled={loading} 
-            className="w-full bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl" 
+            onClick={handleSave}
+            disabled={loading}
+            className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl" 
             aria-label="Save Form"
           >
             {loading ? (

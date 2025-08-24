@@ -4,7 +4,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Spinner from 'react-spinners/PuffLoader';
-import { getApiUrl } from '../config';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,7 +15,7 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(getApiUrl('/api/auth/login'), { email, password });
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, { email, password });
       sessionStorage.setItem('token', res.data.token);
       toast.success('Logged in successfully!');
       navigate('/dashboard');

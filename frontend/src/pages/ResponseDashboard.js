@@ -15,7 +15,6 @@ import {
 import toast from 'react-hot-toast';
 import Spinner from 'react-spinners/PuffLoader';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
-import { getApiUrl } from '../config';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -32,16 +31,16 @@ const ResponseDashboard = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const formRes = await axios.get(getApiUrl(`/api/forms/${formId}`), {
+        const formRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/forms/${formId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setForm(formRes.data);
-        const resRes = await axios.get(getApiUrl(`/api/forms/responses/${formId}`), {
+        const resRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/forms/responses/${formId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setResponses(resRes.data);
         const insightRes = await axios.post(
-          getApiUrl(`/api/ai/insights/${formId}`),
+          `${process.env.REACT_APP_API_URL}/api/ai/insights/${formId}`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -57,7 +56,7 @@ const ResponseDashboard = () => {
 
   const handleExport = async () => {
     try {
-      const res = await axios.get(getApiUrl(`/api/forms/export/${formId}`), {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/forms/export/${formId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const blob = new Blob([res.data], { type: 'text/csv' });
@@ -106,7 +105,7 @@ const ResponseDashboard = () => {
       <button onClick={handleExport} className="bg-blue-600 text-white p-2 mb-4 rounded hover:bg-blue-700 transition duration-200">
         Export as CSV
       </button>
-      <h2 className="text-xl mb-2 font-semibold">AI Insights</h2>
+      <h2 className="text-xlmb-2 font-semibold">AI Insights</h2>
       <p className="mb-2">Summary: {insights.summary}</p>
       <p className="mb-2">Sentiment: {insights.sentiment} <button onClick={() => setShowWhy(!showWhy)} className="text-blue-600 underline" data-tip="Toggle explanation" aria-label="Toggle AI Explanation">Why?</button></p>
       {showWhy && <p className="text-gray-600 mb-2">Based on keyword analysis and sentiment scoring from responses.</p>}

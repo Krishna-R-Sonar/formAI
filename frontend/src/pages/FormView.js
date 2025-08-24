@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import Spinner from 'react-spinners/PuffLoader';
-import { getApiUrl } from '../config';
 
 const FormView = () => {
     const { formId } = useParams();
@@ -23,7 +22,7 @@ const FormView = () => {
     useEffect(() => {
         const fetchForm = async () => {
             try {
-                const res = await axios.get(getApiUrl(`/api/forms/${formId}`), { 
+                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/forms/${formId}`, { 
                     headers: token ? { Authorization: `Bearer ${token}` } : {} 
                 });
                 setForm(res.data);
@@ -101,7 +100,7 @@ const FormView = () => {
         
         setIsLoading(true);
         try {
-            await axios.post(getApiUrl(`/api/forms/submit/${formId}`), { 
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/forms/submit/${formId}`, { 
                 data: finalAnswers, 
                 isConversational: false 
             }, { 

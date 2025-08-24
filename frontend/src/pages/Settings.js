@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import Spinner from 'react-spinners/PuffLoader';
-import { getApiUrl } from '../config';
 
 const Settings = () => {
   const [days, setDays] = useState(30);
@@ -14,7 +13,7 @@ const Settings = () => {
     const fetchRetention = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(getApiUrl('/api/settings/retention'), {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/settings/retention`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setDays(res.data.days);
@@ -31,7 +30,7 @@ const Settings = () => {
     setLoading(true);
     try {
       await axios.post(
-        getApiUrl('/api/settings/retention'),
+        `${process.env.REACT_APP_API_URL}/api/settings/retention`,
         { days },
         { headers: { Authorization: `Bearer ${token}` } }
       );

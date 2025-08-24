@@ -16,10 +16,11 @@ dotenv.config();
 const app = express();
 
 // CORS configuration with environment variables
+// Comment/uncomment origins for local/production testing
 const corsOptions = {
   origin: [
-    process.env.FRONTEND_URL_LOCAL,
-    process.env.FRONTEND_URL_PRODUCTION
+    // process.env.FRONTEND_URL_LOCAL, // Uncomment for local testing, comment for production
+    process.env.FRONTEND_URL_PRODUCTION // Comment for local, uncomment for production
   ],
   credentials: true,
   optionsSuccessStatus: 200
